@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head><title>Select Industry</title></head>
+<body>
+    <h1>Select Industry for {{ country }}</h1>
+    <form action="{{ url_for('select_stock') }}" method="post">
+        <input type="hidden" name="sector" value="{{ sector }}">
+        <select name="industry">
+            {% for industry in industries %}
+                <option value="{{ industry }}">{{ industry }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Next</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+<head><title>Set Time Range</title></head>
+<body>
+    <h1>Set Time Range for {{ stock }}</h1>
+    <form action="{{ url_for('show_stock_data') }}" method="post">
+        <input type="hidden" name="stock" value="{{ stock }}">
+        Start Date: <input type="date" name="start_date" required><br>
+        End Date: <input type="date" name="end_date" required><br>
+        <button type="submit">Show Stock Data</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head><title>Stock Data</title></head>
+<body>
+    <h1>Stock Data for {{ stock }}</h1>
+    <p>From {{ start_date }} to {{ end_date }}</p>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Price</th>
+        </tr>
+        {% for data in stock_data %}
+            <tr>
+                <td>{{ data.date }}</td>
+                <td>{{ data.price }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
