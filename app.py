@@ -2,6 +2,16 @@
 from flask import Flask, render_template, request
 import yfinance as yf
 from yfinance.const import fundamentals_keys, SECTOR_INDUSTY_MAPPING
+import psycopg2
+
+connection = psycopg2.connect(
+    user="postgres",
+    password="password",
+    host="127.0.0.1",
+    port="5432",
+    database="postgres"
+)
+cursor = connection.cursor()
 
 app = Flask(__name__)
 # Route for home page where user selects country
@@ -33,7 +43,7 @@ def select_stock():
     return render_template(
         'select_stock.html',
         sector=sector,
-        industry=industry,
+        industry=industry.name,
         stocks=available_stocks
     )
 
@@ -57,7 +67,17 @@ def show_stock_data():
 def fetch_stock_data(stock, start_date, end_date):
     ticker = yf.Ticker(stock)
     hist = ticker.history(start=start_date, end=end_date)
-    return hist.to_dict()
+
+    query = "INSERT INTO stock_prices_data (datetime, symbol, close_price, volume)" +\
+        " VALUES (%s,%s,%s,%s)"
+
+    for _, raw in hist.iterrows():
+        record_to_insert = (raw.name.to_pydatetime(), stock, float(raw["Close"]), float(raw["Volume"]))
+        cursor.execute(query, record_to_insert)
+        connection.commit()
+
+
+    return hist.to_dict(orient="index")
 
 
 if __name__ == '__main__':

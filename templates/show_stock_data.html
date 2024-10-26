@@ -9,10 +9,10 @@
             <th>Date</th>
             <th>Price</th>
         </tr>
-        {% for data in stock_data %}
+        {% for date, prices in stock_data.items() %}
             <tr>
-                <td>{{ data.date }}</td>
-                <td>{{ data.price }}</td>
+                <td>{{ date }}</td>
+                <td>{{ prices['Close'] }}</td>
             </tr>
         {% endfor %}
     </table>
