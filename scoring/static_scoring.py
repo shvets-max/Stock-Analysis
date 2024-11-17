@@ -16,6 +16,7 @@ forecasts.normalize_metrics()
 forecasts.initialize_weights()
 forecasts.calculate_weights()
 forecasts.calculate_scores()
+forecasts.plot_sector_stats()
 
 # Valuation
 valuation = Valuation()
@@ -23,6 +24,7 @@ valuation.load_csv(os.path.join(METRICS_DIR, "value.csv"))
 valuation.normalize_metrics(by="Sector")
 valuation.initialize_weights()
 valuation.calculate_scores()
+valuation.plot_sector_stats()
 
 # Historical Growth
 growth = Growth()
@@ -31,6 +33,7 @@ growth.normalize_metrics()
 growth.initialize_weights()
 # growth.calculate_weights()
 growth.calculate_scores()
+growth.plot_sector_stats()
 
 # Performance
 performance = Performance()
@@ -39,6 +42,7 @@ performance.normalize_metrics()
 performance.initialize_weights()
 # performance.calculate_weights()
 performance.calculate_scores()
+performance.plot_sector_stats()
 
 # Fundamentals
 fundamentals = Fundamentals()
@@ -47,7 +51,7 @@ fundamentals.normalize_metrics()
 fundamentals.initialize_weights()
 # fundamentals.calculate_weights()
 fundamentals.calculate_scores()
-
+fundamentals.plot_sector_stats()
 
 all_metrics_norm = pd.concat(
     [

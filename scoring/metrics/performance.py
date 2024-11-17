@@ -1,11 +1,12 @@
 import logging
+from typing import List
 
 import numpy as np
 import pandas as pd
 
-from constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
-from metrics import MetricBuilder, GeneralInfo
-from utils import load_and_normalize_percentages
+from scoring.constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
+from scoring.metrics import MetricBuilder, GeneralInfo
+from scoring.utils import load_and_normalize_percentages
 
 PERFORMANCE_WEIGHTS = {
     "Return on Assets (5Y)": 3,
@@ -14,7 +15,6 @@ PERFORMANCE_WEIGHTS = {
     "Return on Capital": 2,
     "Asset Turnover": 1,
 }
-COLS = list(PERFORMANCE_WEIGHTS.keys())
 
 geninfo = GeneralInfo()
 geninfo.load_csv()
@@ -25,6 +25,10 @@ class Performance(MetricBuilder):
         self.__normalized_data = None
         self.__weights = None
         self.__scores = None
+
+    @property
+    def metric_columns(self) -> List:
+        return list(PERFORMANCE_WEIGHTS.keys())
 
     @property
     def data(self):
@@ -59,18 +63,18 @@ class Performance(MetricBuilder):
         self.__scores = value
 
     def load_csv(self, csv_path: str):
-        self.data = load_and_normalize_percentages(csv_path, norm_columns=COLS)
+        _data = load_and_normalize_percentages(csv_path, norm_columns=self.metric_columns)
+        self.data = _data.merge(geninfo.data, on="Symbol")
 
     @property
     def quantiles(self):
-        _data = self.data.merge(geninfo.data, on="Symbol")
         stats = {"global": {
-            "q_low": _data[COLS].quantile(Q_LOW),
-            "q_high": _data[COLS].quantile(Q_HIGH),
-            "counts": _data.shape[0]
+            "q_low": self.data[self.metric_columns].quantile(Q_LOW),
+            "q_high": self.data[self.metric_columns].quantile(Q_HIGH),
+            "counts": self.data.shape[0]
         }}
         for key in ALLOWED_GROUPS:
-            g = _data[[key] + COLS].groupby(key)
+            g = self.data[[key] + self.metric_columns].groupby(key)
             q_low = g.quantile(Q_LOW)
             q_high = g.quantile(Q_HIGH)
             counts = g.count()
@@ -84,8 +88,8 @@ class Performance(MetricBuilder):
                 )
 
                 # Assign global quantiles for minority groups
-                q_low.loc[minorities, COLS] = pd.DataFrame({col: stats["global"]["q_low"] for col in minorities}).T
-                q_high.loc[minorities, COLS] = pd.DataFrame({col: stats["global"]["q_high"] for col in minorities}).T
+                q_low.loc[minorities, self.metric_columns] = pd.DataFrame({col: stats["global"]["q_low"] for col in minorities}).T
+                q_high.loc[minorities, self.metric_columns] = pd.DataFrame({col: stats["global"]["q_high"] for col in minorities}).T
 
             stats[key] = {
                 "q_low": q_low,
@@ -93,6 +97,7 @@ class Performance(MetricBuilder):
                 "counts": counts
             }
         return stats
+
 
     def normalize_metrics(
             self,
@@ -104,14 +109,14 @@ class Performance(MetricBuilder):
             qs_low = self.quantiles[by]["q_low"]
             qs_high = self.quantiles[by]["q_high"]
 
-            for col in COLS:
+            for col in self.metric_columns:
                 ql = qs_low.loc[_data[by], col].values
                 qh = qs_high.loc[_data[by], col].values
                 _data[col] = np.clip((_data[col] - ql) / (qh - ql), 0, 1)
 
         else:
             _data = self.data.copy()
-            _data[COLS] = _data[COLS].apply(
+            _data[self.metric_columns] = _data[self.metric_columns].apply(
                 lambda x: np.clip(
                     (x - x.quantile(Q_LOW)) / (
                             x.quantile(Q_HIGH) - x.quantile(Q_LOW)

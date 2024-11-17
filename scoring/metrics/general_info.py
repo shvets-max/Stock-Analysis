@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from constants import METRICS_DIR
+from scoring.constants import METRICS_DIR
 
 
 class GeneralInfo:

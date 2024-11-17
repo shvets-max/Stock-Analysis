@@ -1,11 +1,12 @@
 import logging
+from typing import List
 
 import numpy as np
 import pandas as pd
 
-from constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
-from metrics import MetricBuilder, GeneralInfo
-from utils import load_and_normalize_percentages
+from scoring.constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
+from scoring.metrics import MetricBuilder, GeneralInfo
+from scoring.utils import load_and_normalize_percentages
 
 FUNDAMENTALS_WEIGHTS = {
     "Quick Ratio": 3,
@@ -27,6 +28,10 @@ class Fundamentals(MetricBuilder):
         self.__normalized_data = None
         self.__weights = None
         self.__scores = None
+
+    @property
+    def metric_columns(self) -> List:
+        return list(FUNDAMENTALS_WEIGHTS.keys())
 
     @property
     def data(self):
@@ -61,18 +66,18 @@ class Fundamentals(MetricBuilder):
         self.__scores = value
 
     def load_csv(self, csv_path: str):
-        self.data = load_and_normalize_percentages(csv_path, norm_columns=COLS)
+        _data = load_and_normalize_percentages(csv_path, norm_columns=COLS)
+        self.data = _data.merge(geninfo.data, on="Symbol")
 
     @property
     def quantiles(self):
-        _data = self.data.merge(geninfo.data, on="Symbol")
         stats = {"global": {
-            "q_low": _data[COLS].quantile(Q_LOW),
-            "q_high": _data[COLS].quantile(Q_HIGH),
-            "counts": _data.shape[0]
+            "q_low": self.data[COLS].quantile(Q_LOW),
+            "q_high": self.data[COLS].quantile(Q_HIGH),
+            "counts": self.data.shape[0]
         }}
         for key in ALLOWED_GROUPS:
-            g = _data[[key] + COLS].groupby(key)
+            g = self.data[[key] + COLS].groupby(key)
             q_low = g.quantile(Q_LOW)
             q_high = g.quantile(Q_HIGH)
             counts = g.count()
@@ -100,9 +105,9 @@ class Fundamentals(MetricBuilder):
             self,
             by: str = None,
     ):
-        if by is not None and by in self.quantiles:
-            _data = self.data.merge(geninfo.data[by], on="Symbol")
+        _data = self.data.copy()
 
+        if by is not None and by in self.quantiles:
             qs_low = self.quantiles[by]["q_low"]
             qs_high = self.quantiles[by]["q_high"]
 
@@ -112,7 +117,6 @@ class Fundamentals(MetricBuilder):
                 _data[col] = np.clip((_data[col] - ql) / (qh - ql), 0, 1)
 
         else:
-            _data = self.data.copy()
             _data[COLS] = _data[COLS].apply(
                 lambda x: np.clip(
                     (x - x.quantile(Q_LOW)) / (
