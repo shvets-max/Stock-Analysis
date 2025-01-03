@@ -3,6 +3,7 @@ import os
 # Directories
 WORKDIR = os.path.join(".")
 METRICS_DIR = os.path.join(WORKDIR, "metrics_data")
+SCREENER_DIR = os.path.join(WORKDIR, "screener_data")
 
 ALLOWED_GROUPS = ("Sector", "Industry", "Country")
 
