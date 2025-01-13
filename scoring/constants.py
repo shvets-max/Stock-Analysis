@@ -1,7 +1,7 @@
 import os
 
 # Directories
-WORKDIR = os.path.join(".")
+WORKDIR = "scoring"
 METRICS_DIR = os.path.join(WORKDIR, "metrics_data")
 SCREENER_DIR = os.path.join(WORKDIR, "screener_data")
 

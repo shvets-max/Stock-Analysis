@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from constants import METRICS_DIR
+from utils.time_series import read_csv_to_df, prepare_time_series
 
 METRICS_WEIGHTS = {
     "Total Debt": 0,
@@ -33,29 +34,8 @@ WORKDIR = os.path.join(".")
 DYNAMIC_METRICS_DIR = os.path.join(METRICS_DIR, "dynamic_metrics")
 DATA_SOURCES = ["revenue.csv", "marcap.csv", "operating-margin.csv", "total-debt.csv", "ebitda.csv", "cfo.csv", "total-cash.csv"]
 
-def read_csv_to_df(filename: str) -> pd.DataFrame:
-    with open(os.path.join(DYNAMIC_METRICS_DIR, filename)) as f:
-        dialect = csv.Sniffer().sniff(f.readline(), delimiters=",;")
-
-    df = pd.read_csv(os.path.join(DYNAMIC_METRICS_DIR, filename), index_col=0, sep=dialect.delimiter, on_bad_lines='warn')
-    return df
-
-def prepare_time_series(df: pd.DataFrame):
-    df.index = pd.to_datetime(df.index)
-    df = df[df.index.year >= 2015]
-
-    # Fill date gaps
-    full_date_range = pd.date_range(start=df.index.min(), end=datetime.date.today())
-    df = df.reindex(full_date_range)
-    df = df.ffill()
-
-    df = df.map(lambda x: str(x).replace(",", ".")).astype(float)
-    df.fillna(method="ffill", inplace=True)
-    df.fillna(0, inplace=True)
-    return df
-
 data = {
-    source.rstrip(".csv"): prepare_time_series(read_csv_to_df(source))
+    source.rstrip(".csv"): prepare_time_series(read_csv_to_df(os.path.join(DYNAMIC_METRICS_DIR, source)))
     for source in DATA_SOURCES
 }
 
