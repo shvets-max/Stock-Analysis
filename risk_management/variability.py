@@ -13,16 +13,27 @@ def sigma_adj(series):
     return np.mean(diff ** 2) ** (1 / 2)
 
 
-def VaR():
+def VaR(series, method="historical", conditional: bool = False):
     """
-    Value at risk.
-    :return:
-    """
-    pass
 
-def ES():
-    """
-    Expected shortfall
+    :param series:
+    :param method: 'historical' or 'std'
+    :param conditional: True if CVaR (aka expected shortfall) should be returned
     :return:
     """
-    pass
+    if method not in ("historical", "std"):
+        return None
+
+    daily_returns = np.diff(series) / series
+
+    if method == "std":
+        exp_returns = np.mean(daily_returns)
+        std_returns = np.std(daily_returns)
+        var = exp_returns - 1.65 * std_returns
+    else:
+        var = np.quantile(daily_returns, q=.05)
+
+    if conditional:
+        return np.mean(daily_returns[daily_returns < var])
+
+    return var
