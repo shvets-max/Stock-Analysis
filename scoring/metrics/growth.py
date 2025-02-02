@@ -6,25 +6,25 @@ import pandas as pd
 
 from scoring.constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
 from scoring.metrics import MetricBuilder, GeneralInfo
-from scoring.utils import load_and_normalize_percentages
+from utils.static import load_and_normalize_percentages
 
 GROWTH_WEIGHTS = {
-    "Net Income Growth": 2,
-    "Net Income Growth (3Y)": 2,
-    "Net Income Growth (5Y)": 3,
+    "Net Income Growth": 1,
+    "Net Income Growth (3Y)": 1,
+    "Net Income Growth (5Y)": 1,
 
-    "Revenue Growth (YoY)": 2,
-    "Revenue Growth (3Y)": 2,
-    "Revenue Growth (5Y)": 4,
+    "Revenue Growth (YoY)": 5,
+    "Revenue Growth (3Y)": 5,
+    "Revenue Growth (5Y)": 5,
 
     "EPS Growth": 2,
     "EPS Growth (3Y)": 2,
-    "EPS Growth (5Y)": 4,
+    "EPS Growth (5Y)": 2,
 
-    "FCF Growth": 2,
-    "Net Cash Growth": 3,
+    "FCF Growth": 1,
+    "Net Cash Growth": 1,
     "Gross Profit Growth": 1,
-    "Operating Income Growth": 1
+    "Operating Income Growth": 4
 }
 COLS = list(GROWTH_WEIGHTS.keys())
 

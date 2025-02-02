@@ -6,17 +6,17 @@ import pandas as pd
 
 from scoring.constants import Q_LOW, Q_HIGH, MIN_GROUP, ALLOWED_GROUPS
 from scoring.metrics import MetricBuilder, GeneralInfo
-from scoring.utils import load_and_normalize_percentages
+from utils.static import load_and_normalize_percentages
 
 FORECASTS_WEIGHTS = {
     "Rev Growth Next Year": 10,
-    "Revenue Growth Next 5Y": 10,
+    "Revenue Growth Next 5Y": 5,
 
-    "EPS Growth Next Year": 10,
-    "EPS Growth Next 5Y": 10,
+    "EPS Growth Next Year": 7,
+    "EPS Growth Next 5Y": 4,
 
-    "Price Target Upside (%)": 10,
-    "Top Analyst Price Target Upside (%)": 12
+    "Price Target Upside (%)": 5,
+    "Top Analyst Price Target Upside (%)": 10
 }
 
 geninfo = GeneralInfo()
@@ -140,9 +140,6 @@ class Forecasts(MetricBuilder):
         w["Top Analyst Price Target Upside (%)"] *= (
                 1 + self.data["Top Analyst Count"] /
                 self.data["Top Analyst Count"].max()
-        )
-        w["Price Target Upside (%)"] *= (
-                1 + self.data["Analyst Count"] / self.data["Analyst Count"].max()
         )
 
         self.weights = w

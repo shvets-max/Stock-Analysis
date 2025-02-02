@@ -6,7 +6,7 @@ import pandas as pd
 
 from scoring.constants import ALLOWED_GROUPS, Q_HIGH, Q_LOW, MIN_GROUP
 from scoring.metrics import MetricBuilder, GeneralInfo
-from scoring.utils import load_and_normalize_percentages
+from utils.static import load_and_normalize_percentages
 
 VALUATION_WEIGHTS = {
     "EV/Sales": 8,

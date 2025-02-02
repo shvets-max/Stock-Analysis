@@ -6,14 +6,14 @@ import pandas as pd
 
 from scoring.constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
 from scoring.metrics import MetricBuilder, GeneralInfo
-from scoring.utils import load_and_normalize_percentages
+from utils.static import load_and_normalize_percentages
 
 FUNDAMENTALS_WEIGHTS = {
-    "Quick Ratio": 3,
-    "Debt / EBITDA": 4,
-    "Debt / FCF": 2,
+    "Quick Ratio": 2,
+    "Debt / EBITDA": 3,
+    "Debt / FCF": 1,
     "Debt / Equity": 1,
-    "Current Ratio": 1
+    "Current Ratio": 2
 }
 COLS = list(FUNDAMENTALS_WEIGHTS.keys())
 LOWER_PREFERRED = ["Debt / EBITDA", "Debt / FCF", "Debt / Equity"]

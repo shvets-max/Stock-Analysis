@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas as pd
+from uri_template import expand
 
 from constants import METRICS_DIR
 from metrics import Forecasts, Growth, Valuation, Performance, Fundamentals
@@ -53,56 +54,18 @@ fundamentals.initialize_weights()
 fundamentals.calculate_scores()
 fundamentals.plot_sector_stats()
 
-all_metrics_norm = pd.concat(
-    [
-        fundamentals.normalized_data,
-        performance.normalized_data,
-        growth.normalized_data,
-        valuation.normalized_data,
-        forecasts.normalized_data,
-    ],
-    axis=1
-)
-all_metrics_weights = pd.concat(
-    [
-        fundamentals.weights,
-        performance.weights,
-        growth.weights,
-        valuation.weights,
-        forecasts.weights,
-    ],
-    axis=1
-)
+growth_score = (growth.normalized_data * growth.weights).sum(axis=1) / growth.weights.sum(axis=1)
+valuation_score = (valuation.normalized_data * valuation.weights).sum(axis=1) / valuation.weights.sum(axis=1)
+forecasts_score = (forecasts.normalized_data * forecasts.weights).sum(axis=1) / forecasts.weights.sum(axis=1)
 
-final_score_norm = (all_metrics_norm * all_metrics_weights).sum(axis=1) / all_metrics_weights.sum(axis=1)
-
-
-# top50_tickers = final_score_norm.sort_values(by="final_score", ascending=False).head(50).index.tolist()
+exp = 2
+final_score = growth_score**exp * valuation_score**exp * forecasts_score**exp
+final_score_sorted = final_score.sort_values(ascending=False)
+top_tickers = final_score_sorted[final_score_sorted > 1e-3]
+if top_tickers.size > 50:
+    top_tickers = top_tickers[:50]
 
 # with open("top50-initial-scoring.txt", "w") as f:
-#     f.write("\n".join(top50_tickers))
+#     f.write("\n".join(top_tickers.index.tolist()))
 #
-# Correlations
-# corr = {"Market Cap": len(
-#     set(df_general.sort_values(by="Market Cap", ascending=False).head(
-#         75).index).intersection(set(top50_tickers))
-# ) / 50}
-#
-# for metric in all_metrics_norm.columns:
-#     top75by_metric = set(all_metrics_norm[metric].sort_values(ascending=False).head(75).index)
-#     corr[metric] = len(top75by_metric.intersection(set(top50_tickers))) / 50
-
-
-# ---------------
-# Scoring correlations with different metrics_data
-# import matplotlib.pyplot as plt
-#
-# sorted_weights = {k: v for k, v in sorted(corr.items(), key=lambda item: item[1], reverse=True)}
-# labels, values = sorted_weights.keys(), sorted_weights.values()
-# indexes = np.arange(len(labels))
-#
-# plt.bar(indexes, values)
-# plt.xticks(indexes, labels, rotation=90)
-# plt.title("Top stocks coverage by metric (50 in 75)")
-# plt.show()
 

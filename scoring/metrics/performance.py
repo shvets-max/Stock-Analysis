@@ -6,14 +6,14 @@ import pandas as pd
 
 from scoring.constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
 from scoring.metrics import MetricBuilder, GeneralInfo
-from scoring.utils import load_and_normalize_percentages
+from utils.static import load_and_normalize_percentages
 
 PERFORMANCE_WEIGHTS = {
     "Return on Assets (5Y)": 3,
-    "Return on Assets": 2,
+    "Return on Assets": 3,
     "Return on Capital (5Y)": 3,
-    "Return on Capital": 2,
-    "Asset Turnover": 1,
+    "Return on Capital": 3,
+    "Asset Turnover": 5,
 }
 
 geninfo = GeneralInfo()
