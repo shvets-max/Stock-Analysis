@@ -10,11 +10,11 @@ from utils.static import load_and_normalize_percentages
 
 VALUATION_WEIGHTS = {
     "EV/Sales": 8,
-    "EV/EBIT": 2,
-    "EV/Earnings": 8,
-    "EV/FCF": 8,
+    "EV/EBIT": 1,
+    "EV/Earnings": 1,
+    "EV/FCF": 4,
     "EV/EBITDA": 10,
-    "PE Ratio": 10,
+    "PE Ratio": 2,
     "P/FCF Ratio": 2,
     "PS Ratio": 10
 
@@ -70,18 +70,18 @@ class Valuation(MetricBuilder):
         self.__scores = value
 
     def load_csv(self, csv_path: str):
-        _data = load_and_normalize_percentages(csv_path, norm_columns=COLS)
+        _data = load_and_normalize_percentages(csv_path, norm_columns=self.metric_columns)
         self.data = _data.merge(geninfo.data, on="Symbol")
 
     @property
     def quantiles(self):
         stats = {"global": {
-            "q_low": self.data[COLS].quantile(Q_LOW),
-            "q_high": self.data[COLS].quantile(Q_HIGH),
+            "q_low": self.data[self.metric_columns].quantile(Q_LOW),
+            "q_high": self.data[self.metric_columns].quantile(Q_HIGH),
             "counts": self.data.shape[0]
         }}
         for key in ALLOWED_GROUPS:
-            g = self.data[[key] + COLS].groupby(key)
+            g = self.data[[key] + self.metric_columns].groupby(key)
             q_low = g.quantile(Q_LOW)
             q_high = g.quantile(Q_HIGH)
             counts = g.count()
@@ -95,8 +95,8 @@ class Valuation(MetricBuilder):
                 )
 
                 # Assign global quantiles for minority groups
-                q_low.loc[minorities, COLS] = pd.DataFrame({col: stats["global"]["q_low"] for col in minorities}).T
-                q_high.loc[minorities, COLS] = pd.DataFrame({col: stats["global"]["q_high"] for col in minorities}).T
+                q_low.loc[minorities, self.metric_columns] = pd.DataFrame({col: stats["global"]["q_low"] for col in minorities}).T
+                q_high.loc[minorities, self.metric_columns] = pd.DataFrame({col: stats["global"]["q_high"] for col in minorities}).T
 
             stats[key] = {
                 "q_low": q_low,
@@ -113,14 +113,19 @@ class Valuation(MetricBuilder):
         if by is not None and by in self.quantiles:
             qs_low = self.quantiles[by]["q_low"]
             qs_high = self.quantiles[by]["q_high"]
+            non_na = ~_data[by].isna()
 
-            for col in COLS:
-                ql = qs_low.loc[_data[by], col].values
-                qh = qs_high.loc[_data[by], col].values
-                _data[col] = np.clip((_data[col] - ql) / (qh - ql), 0, 1)
+            for col in self.metric_columns:
+                ql = qs_low.loc[_data.loc[non_na, by], col].values
+                qh = qs_high.loc[_data.loc[non_na, by], col].values
+                _data.loc[non_na, col] = np.clip((_data.loc[non_na, col] - ql) / (qh - ql), 0, 1)
+
+                _ql = self.quantiles["global"]["q_low"]
+                _qh = self.quantiles["global"]["q_high"]
+                _data.loc[~non_na, col] = np.clip((_data.loc[~non_na, col] - _ql) / (_qh - _ql), 0, 1)
 
         else:
-            _data[COLS] = _data[COLS].apply(
+            _data[self.metric_columns] = _data[self.metric_columns].apply(
                 lambda x: np.clip(
                     (x - x.quantile(Q_LOW)) / (
                             x.quantile(Q_HIGH) - x.quantile(Q_LOW)

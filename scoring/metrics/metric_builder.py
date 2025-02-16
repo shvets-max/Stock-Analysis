@@ -87,7 +87,7 @@ class MetricBuilder(ABC):
             plt.grid(axis='y')
             plt.xticks(rotation=90)
             plt.xlabel('Sector')
-            plt.tick_params(axis='x', direction='in', pad=25)
+            plt.tick_params(axis='x', direction='in', pad=-15)
 
             metric_name = re.sub(rf"[{punctuation + whitespace}]", "-", col)
             metric_name = re.sub(r"-+", "-", metric_name)

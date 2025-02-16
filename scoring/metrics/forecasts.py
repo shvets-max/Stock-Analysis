@@ -110,11 +110,16 @@ class Forecasts(MetricBuilder):
         if by is not None and by in self.quantiles:
             qs_low = self.quantiles[by]["q_low"]
             qs_high = self.quantiles[by]["q_high"]
+            non_na = ~_data[by].isna()
 
             for col in self.metric_columns:
-                ql = qs_low.loc[_data[by], col].values
-                qh = qs_high.loc[_data[by], col].values
-                _data[col] = np.clip((_data[col] - ql) / (qh - ql), 0, 1)
+                ql = qs_low.loc[_data.loc[non_na, by], col].values
+                qh = qs_high.loc[_data.loc[non_na, by], col].values
+                _data.loc[non_na, col] = np.clip((_data.loc[non_na, col] - ql) / (qh - ql), 0, 1)
+
+                _ql = self.quantiles["global"]["q_low"]
+                _qh = self.quantiles["global"]["q_high"]
+                _data.loc[~non_na, col] = np.clip((_data.loc[~non_na, col] - _ql) / (_qh - _ql), 0, 1)
 
         else:
             _data[self.metric_columns] = _data[self.metric_columns].apply(
