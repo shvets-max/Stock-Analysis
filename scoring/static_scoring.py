@@ -1,13 +1,13 @@
-import os
 import logging
-import pandas as pd
+import os
 
 from constants import METRICS_DIR
-from metrics import Forecasts, Growth, Valuation, Performance, Fundamentals
+from metrics import Forecasts, Fundamentals, Growth, Performance, Valuation
 
 EXP = 2
 
 logging.basicConfig(level=logging.INFO)
+
 
 def calculate_scores():
     # df_general = pd.read_csv(os.path.join(METRICS_DIR, "general.csv"), index_col=0)
@@ -56,25 +56,44 @@ def calculate_scores():
     fundamentals.calculate_scores()
     # fundamentals.plot_sector_stats()
 
-    growth_score = (growth.normalized_data * growth.weights).sum(axis=1) / growth.weights.sum(axis=1)
-    valuation_score = (valuation.normalized_data * valuation.weights).sum(axis=1) / valuation.weights.sum(axis=1)
-    forecasts_score = (forecasts.normalized_data * forecasts.weights).sum(axis=1) / forecasts.weights.sum(axis=1)
-    performance_score = (performance.normalized_data * performance.weights).sum(axis=1) / performance.weights.sum(axis=1)
-    fundamentals_score = (fundamentals.normalized_data * fundamentals.weights).sum(axis=1) / fundamentals.weights.sum(
-        axis=1)
+    growth_score = (growth.normalized_data * growth.weights).sum(
+        axis=1
+    ) / growth.weights.sum(axis=1)
+    valuation_score = (valuation.normalized_data * valuation.weights).sum(
+        axis=1
+    ) / valuation.weights.sum(axis=1)
+    forecasts_score = (forecasts.normalized_data * forecasts.weights).sum(
+        axis=1
+    ) / forecasts.weights.sum(axis=1)
+    performance_score = (performance.normalized_data * performance.weights).sum(
+        axis=1
+    ) / performance.weights.sum(axis=1)
+    fundamentals_score = (fundamentals.normalized_data * fundamentals.weights).sum(
+        axis=1
+    ) / fundamentals.weights.sum(axis=1)
 
-    return growth_score, valuation_score, forecasts_score, performance_score, fundamentals_score
+    return (
+        growth_score,
+        valuation_score,
+        forecasts_score,
+        performance_score,
+        fundamentals_score,
+    )
+
 
 if __name__ == "__main__":
     grwth, value, forcst, perf, fund = calculate_scores()
 
     # Combine scores from less crucial (1/EXP power) to most crucial (EXP power).
-    final_score = fund ** (1/EXP) * perf ** (1/EXP) * grwth * value**EXP * forcst**EXP
+    final_score = (
+        fund ** (1 / EXP) * perf ** (1 / EXP) * grwth * value**EXP * forcst**EXP
+    )
     final_score_sorted = final_score.sort_values(ascending=False)
     top_tickers = final_score_sorted[final_score_sorted > 1e-3]
     if top_tickers.size > 50:
         top_tickers = top_tickers[:50]
 
-    with open("top50-static-scoring.txt", "w") as f:
-        f.write("\n".join(top_tickers.index.tolist()))
+    print(top_tickers)
 
+    # with open("top50-static-scoring.txt", "w") as f:
+    #     f.write("\n".join(top_tickers.index.tolist()))

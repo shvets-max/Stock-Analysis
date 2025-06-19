@@ -1,13 +1,13 @@
-import pandas as pd
 import os
+
+import pandas as pd
+
 from scoring.constants import SCREENER_DIR
 from scoring.utils.static import load_and_normalize_percentages
 
-data = pd.read_csv(os.path.join(SCREENER_DIR, "screener-stocks-fundamentals-hist-growth-2024-11-29.csv"))
-percentage_cols = data.map(lambda x: "%" in x if isinstance(x, str) else False).any(axis=0)
-percentage_colnames = data.columns[percentage_cols].tolist()
-
-data = load_and_normalize_percentages(os.path.join(SCREENER_DIR, "screener-stocks-fundamentals-hist-growth-2024-11-29.csv"), norm_columns=percentage_colnames)
+data = load_and_normalize_percentages(
+    os.path.join(SCREENER_DIR, "screener-stocks-2025-02-12.csv")
+)
 
 # Marcap
 data = data[data["Market Cap"] > 5e9]
@@ -18,12 +18,13 @@ data = data[(data["Rev. Growth 3Y"] > 0.02) | (pd.isna(data["Rev. Growth 3Y"]))]
 data = data[(data["Rev. Growth"] > 0.02) | (pd.isna(data["Rev. Growth"]))]
 # data = data[(data["Rev. Growth (Q)"] > 0) | (pd.isna(data["Rev. Growth (Q)"]))]
 
-# data = data[(data["Rev Gr. Next 5Y"] > 0.02) | (pd.isna(data["Rev. Growth 5Y"]))]  # controversial because of long horizon.
+# data = data[(data["Rev Gr. Next 5Y"] > 0.02) | (pd.isna(data["Rev. Growth 5Y"]))]
+# controversial because of long horizon.
 data = data[(data["Rev Gr. Next Y"] > 0.02) | (pd.isna(data["Rev Gr. Next Y"]))]
 # data = data[(data["Rev Gr. Next Q"] > -0.02) | (pd.isna(data["Rev. Growth"]))]
 
-data = data[(data["OpInc Growth 5Y"] > 0.0) | (pd.isna(data["OpInc Growth 5Y"]))]
-data = data[(data["OpInc Growth 3Y"] > 0.0) | (pd.isna(data["OpInc Growth 3Y"]))]
+# data = data[(data["OpInc Growth (5Y)"] > 0.0) | (pd.isna(data["OpInc Growth (5Y)"]))]
+# data = data[(data["OpInc Growth 3Y"] > 0.0) | (pd.isna(data["OpInc Growth 3Y"]))]
 # data = data[(data["OpInc Growth"] > 0.0) | (pd.isna(data["OpInc Growth"]))]
 # data = data[data["OpInc Growth (Q)"] > 0 | (pd.isna(data["OpInc Growth (Q)"]))]
 
@@ -41,7 +42,7 @@ data = data[(data["ROIC (5Y)"] > 0.05) | (pd.isna(data["ROIC (5Y)"]))]
 data = data[(data["Oper. Margin"] > 0.08) | (pd.isna(data["Oper. Margin"]))]
 
 # Analysts / Upside
-data = data[(data["Analyst Count"] > 5) | (pd.isna(data["Analyst Count"]))]
-data = data[(data["PT Diff. (%)"] > 0.05) | (pd.isna(data["PT Diff. (%)"]))]
+data = data[(data["Analysts"] > 5) | (pd.isna(data["Analysts"]))]
+data = data[(data["PT Upside (%)"] > 0.05) | (pd.isna(data["PT Upside (%)"]))]
 
-print("Done.")
+print(data)

@@ -1,14 +1,12 @@
+from .forecasts import FORECASTS_WEIGHTS, Forecasts
+from .fundamentals import FUNDAMENTALS_WEIGHTS, Fundamentals
+from .growth import GROWTH_WEIGHTS, Growth
 from .metric_builder import MetricBuilder
-from .general_info import GeneralInfo
-from .forecasts import Forecasts, FORECASTS_WEIGHTS
-from .growth import Growth, GROWTH_WEIGHTS
-from .valuation import Valuation, VALUATION_WEIGHTS
-from .performance import Performance, PERFORMANCE_WEIGHTS
-from .fundamentals import Fundamentals, FUNDAMENTALS_WEIGHTS
+from .performance import PERFORMANCE_WEIGHTS, Performance
+from .valuation import VALUATION_WEIGHTS, Valuation
 
 __all__ = [
     "MetricBuilder",
-    "GeneralInfo",
     "Forecasts",
     "Growth",
     "Valuation",
