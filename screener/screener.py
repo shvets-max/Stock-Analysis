@@ -1,4 +1,0 @@
-
-
-class Screener:
-    pass

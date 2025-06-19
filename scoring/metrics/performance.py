@@ -6,7 +6,7 @@ import pandas as pd
 
 from scoring.constants import ALLOWED_GROUPS, Q_LOW, Q_HIGH, MIN_GROUP
 from scoring.metrics import MetricBuilder, GeneralInfo
-from utils.static import load_and_normalize_percentages
+from scoring.utils.static import load_and_normalize_percentages
 
 PERFORMANCE_WEIGHTS = {
     "Return on Assets (5Y)": 3,

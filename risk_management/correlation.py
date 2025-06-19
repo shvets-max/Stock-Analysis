@@ -1,11 +1,7 @@
-import csv
-import datetime
 import os
 
-import pandas as pd
-
 from scoring.constants import METRICS_DIR
-from utils import prepare_time_series, read_csv_to_df
+from scoring.utils import prepare_time_series, read_csv_to_df
 
 DYNAMIC_METRICS_DIR = os.path.join(METRICS_DIR, "dynamic_metrics")
 

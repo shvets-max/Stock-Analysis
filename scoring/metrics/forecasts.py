@@ -6,7 +6,7 @@ import pandas as pd
 
 from scoring.constants import Q_LOW, Q_HIGH, MIN_GROUP, ALLOWED_GROUPS
 from scoring.metrics import MetricBuilder, GeneralInfo
-from utils.static import load_and_normalize_percentages
+from scoring.utils.static import load_and_normalize_percentages
 
 FORECASTS_WEIGHTS = {
     "Rev Growth Next Year": 10,
