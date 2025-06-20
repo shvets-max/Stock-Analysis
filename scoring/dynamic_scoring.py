@@ -3,8 +3,8 @@ import os
 
 import numpy as np
 import pandas as pd
-from constants import METRICS_DIR
 
+from scoring.constants import METRICS_DIR
 from scoring.utils.time_series import prepare_time_series, read_csv_to_df
 
 # Define constants for better readability
@@ -276,7 +276,7 @@ def calculate_debt_dynamic_score(
     # Calculate the debt down ratio
     epsilon = 0.1
     debt_down_points = sum(
-        (qs[x] + epsilon >= qs[x + 1:]).sum() for x in range(n_quarters - 1)
+        (qs[x] + epsilon >= qs[x + 1 :]).sum() for x in range(n_quarters - 1)
     )
     debt_down_ratio = debt_down_points / 10
 

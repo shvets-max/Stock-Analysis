@@ -1,8 +1,8 @@
 import logging
 import os
 
-from constants import METRICS_DIR
-from metrics import Forecasts, Fundamentals, Growth, Performance, Valuation
+from scoring.constants import METRICS_DIR
+from scoring.metrics import Forecasts, Fundamentals, Growth, Performance, Valuation
 
 EXP = 2
 
